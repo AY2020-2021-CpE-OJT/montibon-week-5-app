@@ -1,16 +1,12 @@
-// To parse this JSON data, do
-//
-//     final welcome = welcomeFromJson(jsonString);
-
 import 'dart:convert';
 
 
-DataModel dataModelFromJson(String str) => DataModel.fromJson(json.decode(str));
+DataModel dataModelFromJson(String str) => DataModel.fromJson(jsonDecode(str));
 
 String dataModelToJson(DataModel data) => json.encode(data.toJson());
 
 class DataModel {
-  DataModel({
+  DataModel( {
     required this.phoneNumbers,
     required this.id,
     required this.firstName,
@@ -18,11 +14,11 @@ class DataModel {
     required this.v,
   });
 
-  List<dynamic> phoneNumbers;
-  String id;
-  String firstName;
-  String lastName;
-  int v;
+  final List<dynamic> phoneNumbers;
+  final String id;
+  final String firstName;
+  final String lastName;
+  final int v;
 
   factory DataModel.fromJson(Map<String, dynamic> json) => DataModel(
     phoneNumbers: List<String>.from(json["phone_numbers"].map((x) => x)),
