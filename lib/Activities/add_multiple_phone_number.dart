@@ -1,7 +1,9 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'package:phonebook_app/main.dart';
 import '../DataModel.dart';
@@ -44,61 +46,37 @@ class _AddPhonebookState extends State<AddPhonebook> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Container(
-              decoration: BoxDecoration(
-                color: Colors.grey[850],
-                borderRadius: BorderRadius.circular(30),
-              ),
+              decoration: BoxDecoration(color: Colors.grey[850], borderRadius: BorderRadius.circular(30),),
               margin: EdgeInsets.all(10),
               child: TextFormField(
                 autofocus: true,
                 controller: _firstNameController,
-                style: TextStyle(
-                  color: Colors.white
-                ),
-                decoration: InputDecoration(
-                    border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(30)
-                    ),
+                style: TextStyle(color: Colors.white),
+                decoration: InputDecoration(border: OutlineInputBorder(borderRadius: BorderRadius.circular(30)),
                     isDense: true,
-                    prefixIcon: Icon(Icons.person,
-                      color: Colors.white,
-                    ),
+                    prefixIcon: Icon(Icons.person, color: Colors.white,),
                     focusColor: Colors.white,
                     contentPadding: EdgeInsets.all(15),
                     hintText: 'First Name',
-                    hintStyle: TextStyle(
-                        color: Colors.grey[500]
-                    )
+                    hintStyle: TextStyle(color: Colors.grey[500])
                 ),
                 textInputAction: TextInputAction.next,
               ),
             ),
             Container(
-              decoration: BoxDecoration(
-                color: Colors.grey[850],
-                borderRadius: BorderRadius.circular(30),
-              ),
+              decoration: BoxDecoration(color: Colors.grey[850], borderRadius: BorderRadius.circular(30),),
               margin: EdgeInsets.all(10),
               child: TextFormField(
                 autofocus: true,
                 controller: _lastNameController,
-                style: TextStyle(
-                    color: Colors.white
-                ),
-                decoration: InputDecoration(
-                    border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(30)
-                    ),
+                style: TextStyle(color: Colors.white),
+                decoration: InputDecoration(border: OutlineInputBorder(borderRadius: BorderRadius.circular(30)),
                     isDense: true,
-                    prefixIcon: Icon(Icons.person,
-                      color: Colors.white,
-                    ),
+                    prefixIcon: Icon(Icons.person, color: Colors.white,),
                     focusColor: Colors.white,
                     contentPadding: EdgeInsets.all(15),
                     hintText: 'Last Name',
-                    hintStyle: TextStyle(
-                        color: Colors.grey[500]
-                    )
+                    hintStyle: TextStyle(color: Colors.grey[500])
                 ),
                 textInputAction: TextInputAction.next,
               ),
@@ -113,7 +91,7 @@ class _AddPhonebookState extends State<AddPhonebook> {
             Row(
               children: <Widget>[
                 Wrap(
-                  spacing: 140,
+                  spacing: 180,
                   children: <Widget>[
                     TextButton(
                         style: ButtonStyle(
@@ -125,41 +103,42 @@ class _AddPhonebookState extends State<AddPhonebook> {
                             counter++;
                           });
                         },
-                        child: Text('Add Phone Number',
-                        style: TextStyle(
-                          fontSize: 20,
-                        ),)),
+                        child: Text('Add Phone Number', style: TextStyle(fontSize: 20,),)),
                     TextButton(
+                      focusNode: FocusNode(),
                         style: ButtonStyle(
                           backgroundColor: MaterialStateProperty.all(Colors.black),
                           foregroundColor: MaterialStateProperty.all(Colors.white),
                         ),
                         onPressed: () async {
+                        FocusScope.of(context).unfocus();
                           if (_firstNameController.text == '' || _lastNameController.text == ''){
                             final snackBar = SnackBar(
                               backgroundColor: Colors.red,
                                 content: Container(
                                   color: Colors.red,
                                   height: 40,
-                                  child: Center(
-                                    child: Text('Invalid Input, Contact cannot be saved',
-                                    style: TextStyle(
-                                      fontSize: 15,
-                                    ),),
-                                  ),
+                                  child: Center(child: Text('Invalid Input, Contact cannot be saved', style: TextStyle(fontSize: 20,),),),
                                 ));
                             ScaffoldMessenger.of(context).showSnackBar(snackBar);
                           }
                           else {
                             final waitSnackbar = SnackBar(
+                              backgroundColor: Colors.blue,
                                 content: Container(
                                   color: Colors.blue,
                                   height: 40,
                                   child: Center(
-                                    child: Text('Updating Database',
-                                      style: TextStyle(
-                                        fontSize: 15,
-                                      ),
+                                    child: Row(
+                                      children: [
+                                        Wrap(
+                                          spacing: 240,
+                                          children: [
+                                            Text('Updating Database', style: TextStyle(fontSize: 25,),),
+                                            Container(color: Colors.blue, height: 40, child: CircularProgressIndicator(),)
+                                          ],
+                                        ),
+                                      ],
                                     ),
                                   ),
                             ));
@@ -181,17 +160,21 @@ class _AddPhonebookState extends State<AddPhonebook> {
                                 phoneNumbers.add(_phoneNumbersController[i].text);
                               }
                             }
+
+                            for (int i = 0; i < counter; i++){
+                              _phoneNumbersController[i].clear();
+                              _phoneNumbersController.remove(_phoneNumbersController[i]);
+                            }
+                            counter = 0;
                             final DataModel? user = await createUser(firstName, lastName, phoneNumbers);
                             setState(() {
                               _user = user;
-                              Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => MyApp()));
+
                             });
+                            await Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => MyApp()));
                           }
                         },
-                        child: Text('Save Contact',
-                          style: TextStyle(
-                            fontSize: 20,
-                          ),)),
+                        child: Text('Save Contact', style: TextStyle(fontSize: 20,),)),
                   ],
                 )
               ]
@@ -206,28 +189,19 @@ class _AddPhonebookState extends State<AddPhonebook> {
     if (counter > 1){
       return Container(
           width: 100,
-          decoration: BoxDecoration(
-            color: Colors.grey[850],
-            borderRadius: BorderRadius.circular(30),
-          ),
+          decoration: BoxDecoration(color: Colors.grey[850], borderRadius: BorderRadius.circular(30),),
           margin: EdgeInsets.all(10),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               TextFormField(
                 autofocus: true,
-                style: TextStyle(
-                  color: Colors.white,
-                ),
+                style: TextStyle(color: Colors.white,),
+                keyboardType: TextInputType.number,
                 controller: _phoneNumbersController[index],
-                decoration: InputDecoration(
-                    border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(30)
-                    ),
+                decoration: InputDecoration(border: OutlineInputBorder(borderRadius: BorderRadius.circular(30)),
                     isDense: true,
-                    prefixIcon: Icon(Icons.phone,
-                      color: Colors.white,
-                    ),
+                    prefixIcon: Icon(Icons.phone, color: Colors.white,),
                     suffixIcon: IconButton(
                       onPressed: (){
                         setState(() {
@@ -240,9 +214,7 @@ class _AddPhonebookState extends State<AddPhonebook> {
                     ),
                     contentPadding: EdgeInsets.all(15),
                     hintText: 'Phone Number ${index + 1}',
-                    hintStyle: TextStyle(
-                        color: Colors.grey[500]
-                    )
+                    hintStyle: TextStyle(color: Colors.grey[500])
                 ),
                 textInputAction: TextInputAction.next,
               ),
@@ -254,36 +226,25 @@ class _AddPhonebookState extends State<AddPhonebook> {
     else {
       return Container(
           width: 100,
-          decoration: BoxDecoration(
-            color: Colors.grey[850],
-            borderRadius: BorderRadius.circular(30),
-          ),
+          decoration: BoxDecoration(color: Colors.grey[850], borderRadius: BorderRadius.circular(30),),
           margin: EdgeInsets.all(10),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               TextFormField(
+                autofocus: true,
+                keyboardType: TextInputType.number,
                 controller: _phoneNumbersController[index],
                 decoration: InputDecoration(
-                    helperStyle: TextStyle(
-                        color: Colors.white
-                    ),
-                    border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(30)
-                    ),
+                    helperStyle: TextStyle(color: Colors.white),
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(30)),
                     isDense: true,
-                    prefixIcon: Icon(Icons.phone,
-                      color: Colors.white,
-                    ),
+                    prefixIcon: Icon(Icons.phone, color: Colors.white,),
                     contentPadding: EdgeInsets.all(15),
                     hintText: 'Phone Number ${index + 1}',
-                    hintStyle: TextStyle(
-                        color: Colors.grey[500]
-                    )
+                    hintStyle: TextStyle(color: Colors.grey[500])
                 ),
-                style: TextStyle(
-                  color: Colors.white,
-                ),
+                style: TextStyle(color: Colors.white,),
               ),
             ],
           )
@@ -293,9 +254,11 @@ class _AddPhonebookState extends State<AddPhonebook> {
   }
 
   Future<DataModel?> createUser(String firstName, String lastName, List<dynamic> phoneNumbers) async {
-    final response = await http.post(Uri.https('phonebookapimontibon.herokuapp.com', 'phonebook'),
+    final response = await http.post(Uri.https('phonebookapimontibon.herokuapp.com', 'phonebook/create'),
+    //final response = await http.post(Uri.https('10.0.2.2:3000', 'phonebook'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
+          HttpHeaders.authorizationHeader: 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MGY2ODhkOGVmZTNjNzRiOTAwMmQ4NDMiLCJpYXQiOjE2MjY3Njk2MzB9.rPXdeTVdIt_F3piPCZh9Zi6PwbcsLLuScDXpOt9uvRQ'
         },
         body: jsonEncode(<dynamic, dynamic>{
           "first_name": firstName,
@@ -314,16 +277,8 @@ class _AddPhonebookState extends State<AddPhonebook> {
     return AlertDialog(
       titlePadding: EdgeInsets.all(10),
       title: Center(
-        child: Text('Updating Database',
-          style: TextStyle(
-            color: Colors.grey[100],
-          ),),
-      ),
-      content: Center(
-        widthFactor: 1,
-        heightFactor: 0,
-        child: CircularProgressIndicator(),
-      )
+        child: Text('Updating Database', style: TextStyle(color: Colors.grey[100],),),),
+      content: Center(widthFactor: 1, heightFactor: 0, child: CircularProgressIndicator(),)
     );
   }
 }

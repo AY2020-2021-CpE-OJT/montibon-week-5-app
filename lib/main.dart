@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:phonebook_app/Activities/display_contacts.dart';
+import 'package:phonebook_app/Activities/display_contacts_revision.dart';
 
 
 void main() {
@@ -12,7 +13,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Phonebook Application',
-      home: PhonebookDisplay(),
+      home: PhonebookDisplay2(),
       );
   }
 }

@@ -7,6 +7,9 @@ import 'package:http/http.dart' as http;
 import 'package:phonebook_app/Activities/update_information.dart';
 import 'package:phonebook_app/DataModel.dart';
 import 'dart:async';
+import 'dart:io';
+
+import '../main.dart';
 
 class PhonebookDisplay extends StatefulWidget {
 
@@ -16,12 +19,13 @@ class PhonebookDisplay extends StatefulWidget {
 
 class _PhonebookDisplayState extends State<PhonebookDisplay> {
 
-  late Future futurePhonebook = getPhonebook();
+  late Future futurePhonebook;
   int checker = 0;
 
   @override
   void initState(){
     super.initState();
+    futurePhonebook = getPhonebook();
   }
 
   Widget build(BuildContext context) {
@@ -38,7 +42,7 @@ class _PhonebookDisplayState extends State<PhonebookDisplay> {
       ),
         body: Container(
             child: FutureBuilder(
-              future: futurePhonebook,
+              future: futurePhonebook = getPhonebook(),
               builder: (context, AsyncSnapshot<dynamic> snapshot){
                 if (snapshot.connectionState == ConnectionState.done){
                   if (snapshot.hasError){
@@ -109,8 +113,6 @@ class _PhonebookDisplayState extends State<PhonebookDisplay> {
                                             String sendId = snapshot.data[index].id;
                                             print('id to be sent is: ' + snapshot.data[index].id);
                                             Navigator.of(context).push(MaterialPageRoute(builder: (context) => UpdateContact(receivedId: sendId)));
-                                            setState(() {
-                                            });
                                           },
                                           child: Icon(
                                               Icons.edit,
@@ -182,7 +184,12 @@ class _PhonebookDisplayState extends State<PhonebookDisplay> {
   }
 
   Future getPhonebook() async{
-    final response = await http.get(Uri.https('phonebookapimontibon.herokuapp.com', 'phonebook'));
+    // final response = await http.get(Uri.http('10.0.2.2:3000', 'phonebook'));
+    final response = await http.get(Uri.https('phonebookapimontibon.herokuapp.com', 'phonebook'),
+    headers: {
+      HttpHeaders.authorizationHeader: 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MGY2ODhkOGVmZTNjNzRiOTAwMmQ4NDMiLCJpYXQiOjE2MjY3Njk2MzB9.rPXdeTVdIt_F3piPCZh9Zi6PwbcsLLuScDXpOt9uvRQ'
+    });
+
     final jsonData = jsonDecode(response.body);
     List<DataModel> dataModels = [];
 
@@ -198,9 +205,12 @@ class _PhonebookDisplayState extends State<PhonebookDisplay> {
   }
 
   Future <DataModel?> deleteUser(String id) async {
-    final response = await http.delete(Uri.https('phonebookapimontibon.herokuapp.com', 'phonebook/$id'),
+    // final response = await http.delete(Uri.https('10.0.2.2:3000', 'phonebook/$id'),
+
+    final response = await http.delete(Uri.https('phonebookapimontibon.herokuapp.com', 'phonebook/delete/$id'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
+          HttpHeaders.authorizationHeader: 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MGY2ODhkOGVmZTNjNzRiOTAwMmQ4NDMiLCJpYXQiOjE2MjY3Njk2MzB9.rPXdeTVdIt_F3piPCZh9Zi6PwbcsLLuScDXpOt9uvRQ'
         },
     );
 
@@ -253,12 +263,13 @@ class _PhonebookDisplayState extends State<PhonebookDisplay> {
                     borderRadius: BorderRadius.circular(5),
                     color: Colors.green[800],
                   ),
-                  child: TextButton(onPressed: (){
+                  child: TextButton(onPressed: () async {
+                    futurePhonebook = deleteUser(snapshot.data[index]!.id.toString());
+                    print('Deleted ' + snapshot.data[index]!.id + ' Belonging to: ' + snapshot.data[index]!.firstName + ' ' + snapshot.data[index]!.lastName );
+                    Navigator.of(context, rootNavigator: true).pop();
                     setState(() {
-                      futurePhonebook = deleteUser(snapshot.data[index]!.id.toString());
-                      print('Deleted ' + snapshot.data[index]!.id + ' Belonging to: ' + snapshot.data[index]!.firstName + ' ' + snapshot.data[index]!.lastName );
                       futurePhonebook = getPhonebook();
-                      Navigator.of(context, rootNavigator: true).pop();
+                      print('this is called');
                     });
                   },
                       child: const Text('Confirm',
@@ -297,4 +308,5 @@ class _PhonebookDisplayState extends State<PhonebookDisplay> {
       ),
     );
   }
+
 }
