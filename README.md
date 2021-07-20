@@ -1,16 +1,18 @@
-# phonebook_app
+# montibon-week-5-app
+Phonebook Application Task 5 Week 5: Secure API with JWT/Passport
 
-A new Flutter project.
+Added header and the generated token to requests to access secured API
 
-## Getting Started
+Updated UI:
 
-This project is a starting point for a Flutter application.
+Removed the delete and edit floating action buttons on display screen
 
-A few resources to get you started if this is your first Flutter project:
+Added search textformfield (non-functioning due to errors)
 
-- [Lab: Write your first Flutter app](https://flutter.dev/docs/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://flutter.dev/docs/cookbook)
+Repositioned the add contacts to appbar together with a vertical more icon for deleting multiple contacts (still not functioning)
 
-For help getting started with Flutter, view our
-[online documentation](https://flutter.dev/docs), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+Sorted the contacts alphabetically (first name basis)
+
+On tap of cards/tiles directs to the update contact with a delete icon on the appbar
+
+On hold of card/tile shows the delete alert dialog (goal is to allow selecting multiple contacts for deleting)
